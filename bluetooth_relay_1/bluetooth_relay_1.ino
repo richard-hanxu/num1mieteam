@@ -29,13 +29,14 @@ const int s5Trig = 4;   const int s5Echo = 5;
 // ------------------------------------------------------------
 float readUltrasonic(int trig, int echo) {
   digitalWrite(trig, LOW);
-  delayMicroseconds(2);
+  delayMicroseconds(2000);
   digitalWrite(trig, HIGH);
   delayMicroseconds(10);
   digitalWrite(trig, LOW);
-  long duration = pulseIn(echo, HIGH, 30000);  // 30 ms timeout
-  if (duration == 0) return -1;                // no echo
-  return duration * 0.0343 / 2.0;
+  long duration = pulseIn(echo, HIGH);  // 30 ms timeout
+  // if (duration == 0) return -1;                // no echo
+  return duration * 0.0343 / (2.0 * 2.54);
+  return duration;
 }
 
 // ------------------------------------------------------------
@@ -96,18 +97,19 @@ void loop() {
             d[4] = readUltrasonic(s4Trig, s4Echo);
             d[5] = readUltrasonic(s5Trig, s5Echo);
 
-            String msg = "";
+            String msg = "s:";
             for (int i = 0; i < 6; i++) {
               msg += String(d[i], 1);
               if (i < 5) msg += ",";
             }
 
-            Serial.print("Ultrasonic (cm): ");
+            Serial.print("Ultrasonic (cm.): ");
             Serial.println(msg);
 
             btSerial.listen();
             btSerial.print(msg);
             btSerial.print('\n');
+            btSerial.flush();  // ensure the HM-10 actually transmits immediately
 
             // stay in waitingForPython (no link comms)
           }
@@ -140,28 +142,8 @@ void loop() {
           Serial.print("From Arduino #2: ");
           Serial.println(linkBuffer);
 
-          // After receiving response, read all ultrasonic sensors
-          float d[6];
-          d[0] = readUltrasonic(s0Trig, s0Echo);
-          d[1] = readUltrasonic(s1Trig, s1Echo);
-          d[2] = readUltrasonic(s2Trig, s2Echo);
-          d[3] = readUltrasonic(s3Trig, s3Echo);
-          d[4] = readUltrasonic(s4Trig, s4Echo);
-          d[5] = readUltrasonic(s5Trig, s5Echo);
-
-          String msg = "";
-          for (int i = 0; i < 6; i++) {
-            msg += String(d[i], 1);
-            if (i < 5) msg += ",";
-          }
-
-          Serial.print("Ultrasonic (cm): ");
-          Serial.println(msg);
-
           btSerial.listen();
           btSerial.print(linkBuffer);  // include Arduino #2’s response
-          btSerial.print(',');
-          btSerial.print(msg);
           btSerial.print('\n');
 
           waitingForResponse = false;
