@@ -16,5 +16,10 @@ Code for Arduino #2. Gets messages from Arduino #1 and performs the desired moto
 - In another terminal, run mcl_simmer.py
 - After any drive command (w0, r0, 'plan'), the robot will try to localize based on its surroundings and output its predicted position
 
-
+### How to Control the Robot Using Bluetooth
+- Make sure you have installed ble-serial on your laptop, and that you can discover the bluetooth device
+- IMPORTANT: MAKE SURE THE BATTERY IS DISCONNECTED WHEN FLASHING, YOU MAY PERMANENTLY DAMAGE YOUR LAPTOP AND/OR FRY YOUR MOTHERBOARD
+- Flash bluetooth_relay_1.ino to the top arduino (on the layer with the Ultrasonic sensors)
+- Flash bluetooth_relay_2.ino to the bottom arduino (on the layer with the motors)
+- Run bluetooth_mcl.py
 
