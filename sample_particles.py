@@ -25,7 +25,16 @@ wall4 = geom.Polygon([(48, 0), (60, 0), (60, 12), (48, 12)])
 wall5 = geom.Polygon([(72, 0), (84, 0), (84, 12), (72, 12)])
 wall6 = geom.Polygon([(72, 24), (84, 24), (84, 48), (72, 48)])
 WALLS = [wall1, wall2, wall3, wall4, wall5, wall6]
-WALLS_WITH_BUFFER = [wall.buffer(3.75) for wall in WALLS]
+# WALLS_WITH_BUFFER = [wall.buffer(3.75) for wall in WALLS]
+
+# Expand corner coordinates of walls by buffer distance to account for robot size
+wall1_buffered = geom.Polygon([(12 - 3.75, 24 - 3.75), (24 + 3.75, 24 - 3.75), (24 + 3.75, 36 + 3.75), (12 - 3.75, 36 + 3.75)])
+wall2_buffered = geom.Polygon([(24 - 3.75, 12 - 3.75), (36 + 3.75, 12 - 3.75), (36 + 3.75, 24 + 3.75), (24 - 3.75, 24 + 3.75)])
+wall3_buffered = geom.Polygon([(36 - 3.75, 24 - 3.75), (60 + 3.75, 24 - 3.75), (60 + 3.75, 36 + 3.75), (36 - 3.75, 36 + 3.75)])
+wall4_buffered = geom.Polygon([(48 - 3.75, 0 - 3.75), (60 + 3.75, 0 - 3.75), (60 + 3.75, 12 + 3.75), (48 - 3.75, 12 + 3.75)])
+wall5_buffered = geom.Polygon([(72 - 3.75, 0 - 3.75), (84 + 3.75, 0 - 3.75), (84 + 3.75, 12 + 3.75), (72 - 3.75, 12 + 3.75)])
+wall6_buffered = geom.Polygon([(72 - 3.75, 24 - 3.75), (84 + 3.75, 24 - 3.75), (84 + 3.75, 48 + 3.75), (72 - 3.75, 48 + 3.75)])
+WALLS_WITH_BUFFER = [wall1_buffered, wall2_buffered, wall3_buffered, wall4_buffered, wall5_buffered, wall6_buffered]
 SAMPLING_REGION = OUTER.difference(ops.unary_union(WALLS_WITH_BUFFER))
 
 
@@ -73,7 +82,7 @@ def sample_starting_points():
                     points.append((x, y, k))
     return points
 
-def visualize_particles(particles_array: np.ndarray):
+def visualize_particles(particles_array: np.ndarray, predicted_position=None):
     """
     visualize_particles(particles_array)
     Visualizes the given particles in a Matplotlib figure, overlaying them on the maze
@@ -89,6 +98,14 @@ def visualize_particles(particles_array: np.ndarray):
     ax.set_xlim(0, 96)
     ax.set_ylim(0, 48)
     ax.set_aspect("equal")
+
+    # Plot predicted position if provided
+    if predicted_position is not None:
+        ax.scatter(predicted_position[0], predicted_position[1], s=50, color="green", label="Predicted Position")
+        # Plot line showing direction
+        ax.plot(predicted_position[0] + 5 * np.cos(np.radians(-(predicted_position[2] - 90))),
+                predicted_position[1] + 5 * np.sin(np.radians(-(predicted_position[2] - 90))),
+                color="green", linewidth=2)
     for i in range(particles_array.shape[0]):
         ax.scatter(particles_array[i, 0], particles_array[i, 1], s=2)
         ax.plot(
